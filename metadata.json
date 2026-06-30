@@ -1,0 +1,6 @@
+{
+  "name": "Community Hero",
+  "description": "A hyperlocal civic platform where citizens report neighborhood infrastructure issues and watch their neighborhood visually heal.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

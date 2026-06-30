@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Represents a citizen user and their stats",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The user's display name" },
+        "avatarConfig": { "type": "string", "description": "JSON string or representation of avatar customization" },
+        "trustScore": { "type": "integer", "description": "Trust score, defaults to 50" },
+        "level": { "type": "integer", "description": "Citizen level, defaults to 1" },
+        "xp": { "type": "integer", "description": "Experience points, defaults to 0" },
+        "badges": { "type": "array", "description": "List of badge IDs earned" },
+        "titles": { "type": "array", "description": "Unlocked titles" },
+        "neighborhoodIds": { "type": "array", "description": "Neighborhoods user is active in" },
+        "joinedAt": { "type": "string", "format": "date-time", "description": "Timestamp when user joined" }
+      },
+      "required": ["name", "avatarConfig", "trustScore", "level", "xp", "badges", "titles", "neighborhoodIds", "joinedAt"]
+    },
+    "Neighborhood": {
+      "title": "Neighborhood",
+      "description": "Represents a hyperlocal community boundary and its metrics",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "boundaryCenter": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          },
+          "required": ["lat", "lng"]
+        },
+        "healthScores": {
+          "type": "object",
+          "properties": {
+            "infrastructure": { "type": "integer" },
+            "cleanliness": { "type": "integer" },
+            "safety": { "type": "integer" },
+            "lighting": { "type": "integer" },
+            "water": { "type": "integer" },
+            "green": { "type": "integer" },
+            "accessibility": { "type": "integer" },
+            "engagement": { "type": "integer" }
+          },
+          "required": ["infrastructure", "cleanliness", "safety", "lighting", "water", "green", "accessibility", "engagement"]
+        },
+        "communityXP": { "type": "integer" },
+        "communityLevel": { "type": "integer" }
+      },
+      "required": ["name", "boundaryCenter", "healthScores", "communityXP", "communityLevel"]
+    },
+    "Issue": {
+      "title": "Neighborhood Issue",
+      "description": "Represents reported infrastructure issues",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "verifying", "routed", "in_progress", "resolved", "disputed"] },
+        "type": { "type": "string", "enum": ["pothole", "broken_streetlight", "water_leak", "waste_problem", "other"] },
+        "severity": { "type": "number" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          },
+          "required": ["lat", "lng"]
+        },
+        "neighborhoodId": { "type": "string" },
+        "departmentId": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "mediaUrl": { "type": "string" },
+        "reportedAt": { "type": "string", "format": "date-time" },
+        "resolvedAt": { "type": "string", "format": "date-time" },
+        "slaDeadline": { "type": "string", "format": "date-time" },
+        "routingExplanation": { "type": "string" },
+        "confirmCount": { "type": "integer" },
+        "rejectCount": { "type": "integer" },
+        "confirmedByUserIds": { "type": "array" },
+        "rejectedByUserIds": { "type": "array" },
+        "verificationPhotos": { "type": "array" }
+      },
+      "required": ["reporterId", "status", "type", "severity", "title", "description", "location", "neighborhoodId", "departmentId", "priority", "reportedAt"]
+    },
+    "Department": {
+      "title": "Department",
+      "description": "Represents an accountable public department",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "accountabilityScore": { "type": "integer" },
+        "avgResponseHours": { "type": "number" },
+        "resolutionRate": { "type": "number" }
+      },
+      "required": ["name", "accountabilityScore", "avgResponseHours", "resolutionRate"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Citizen profile"
+    },
+    "/neighborhoods/{neighborhoodId}": {
+      "schema": "Neighborhood",
+      "description": "Hyperlocal community"
+    },
+    "/issues/{issueId}": {
+      "schema": "Issue",
+      "description": "Reported issue"
+    },
+    "/departments/{departmentId}": {
+      "schema": "Department",
+      "description": "Accountable civic department"
+    },
+    "/escalations/{escalationId}": {
+      "schema": "Escalation",
+      "description": "Department escalations"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Forum/Chat posts"
+    },
+    "/missions/{missionId}": {
+      "schema": "Mission",
+      "description": "Community missions"
+    },
+    "/digests/{neighborhoodId}": {
+      "schema": "Digest",
+      "description": "AI-generated digests"
+    }
+  }
+}

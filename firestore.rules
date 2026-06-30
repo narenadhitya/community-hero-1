@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isUserAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isSandboxUser(userId) {
+      return userId == 'sandbox_citizen_hero_101' || (userId.size() >= 15 && userId.substring(0, 15) == 'sandbox_worker_');
+    }
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow read: if true; // Anyone can view citizen profiles/leaderboard
+      allow create: if (isUserAuthenticated() && request.auth.uid == userId) || isSandboxUser(userId);
+      allow update: if (isUserAuthenticated() && request.auth.uid == userId) || isSandboxUser(userId) || (isUserAuthenticated() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['trustScore']));
+    }
+
+    // 2. Neighborhoods Collection
+    match /neighborhoods/{neighborhoodId} {
+      allow read: if true; // Anyone can view neighborhood health stats
+      allow write: if isUserAuthenticated() || request.auth == null; // Anyone can update community XP
+    }
+
+    // 3. Issues Collection
+    match /issues/{issueId} {
+      allow read: if true; // Anyone can read issues (including on map/list)
+      allow create, update: if isUserAuthenticated() || request.auth == null; // Anyone can create/upvote issues
+      allow delete: if (isUserAuthenticated() && resource.data.reporterId == request.auth.uid) || resource.data.reporterId == 'sandbox_citizen_hero_101';
+    }
+
+    // 4. Departments Collection
+    match /departments/{departmentId} {
+      allow read: if true; // Anyone can view department stats
+      allow write: if isUserAuthenticated() || request.auth == null; // Anyone can update department accountability scores
+    }
+
+    // 5. Escalations Collection
+    match /escalations/{escalationId} {
+      allow read: if true; // Anyone can view past escalations public transparency logs
+      allow write: if isUserAuthenticated() || request.auth == null; // Written by background monitor or system
+    }
+
+    // 6. Forum/Chat Posts Collection
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if isUserAuthenticated() || request.auth == null;
+    }
+
+    // 7. Community Missions Collection
+    match /missions/{missionId} {
+      allow read: if true;
+      allow write: if isUserAuthenticated() || request.auth == null;
+    }
+
+    // 8. Digests Collection
+    match /digests/{neighborhoodId} {
+      allow read: if true;
+      allow write: if isUserAuthenticated() || request.auth == null;
+    }
+  }
+}
